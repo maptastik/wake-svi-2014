@@ -5,6 +5,7 @@
     const attrArray = ["RPL_THEME1", "RPL_THEME2", "RPL_THEME3", "RPL_THEME4", "RPL_THEMES"];
     const attrAliasArray = ["Socioeconomics", "Housing Composition and Disability", "Minority Status and Language", "Housing and Transportation", "Overall"];
     let expressed = attrArray[4];
+    const colorClasses = ["#005353", "#007b7b", "#00a4a4", "#00cccc", "#00ffff"];
 
     let windowHeight = window.innerHeight;
     let vizElementHeight = (windowHeight - 30) / 2; 
@@ -14,11 +15,12 @@
     let chartWidth = $("#chart").outerWidth(),
         chartHeight = vizElementHeight,
         leftPadding = 25,
-        rightPadding = 2,
+        rightPadding = 0,
         topBottomPadding = 5,
         chartInnerWidth = chartWidth - leftPadding - rightPadding,
         chartInnerHeight = chartHeight - topBottomPadding * 2,
-        translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
+        translate = "translate(" + leftPadding + "," + topBottomPadding + ")"
+        tickTranslate = "translate(" + leftPadding + "," + (topBottomPadding - 5) + ")";
 
     const yScale = d3.scaleLinear()
         .range([chartHeight - 10, 0])
@@ -89,10 +91,12 @@
             wakeTracts = joinData(wakeTracts, svi, "GEOID10", "FIPS", attrArray) 
 
             // Draw Tracts
-            let colorScale = makeColorScale(svi)
+            let colorScale = makeColorScale(svi, colorClasses)
             let tracts = setEnumerationUnits(wakeTracts, "tracts", "GEOID10", map, path, colorScale)
             console.log(tracts)
             
+            // Legend
+            const legend = makeQuantileLegend("#legend", [0, 1], colorClasses, "Score")
 
             // Chart
             setChart(svi, colorScale)
@@ -153,11 +157,7 @@
             .text('{"stroke": "#000", "stroke-width": "0px"}')
     }
 
-    function makeColorScale(data) {
-        
-        // #005353|#007b7b|#00a4a4|#00cccc|#00ffff
-        const colorClasses = ["#005353", "#007b7b", "#00a4a4", "#00cccc", "#00ffff"];
-        // colorClasses.reverse();
+    function makeColorScale(data, colorClasses) {
         const colorScale = d3.scaleQuantile()
             .range(colorClasses);
 
@@ -180,6 +180,16 @@
         }
     }
 
+    // Legend Functions
+    function makeQuantileLegend(containerId, rangeArray, colorClasses, title) {
+        let legendSVG = legend({
+            color: d3.scaleQuantize(rangeArray, colorClasses),
+            title: title
+        })
+        d3.select(containerId)
+            .html(legendSVG.outerHTML)
+    }
+
     // Chart Functions
     function setChart(csvData, colorScale) {
 
@@ -195,8 +205,6 @@
             .attr("height", chartInnerHeight)
             .attr("transform", translate)
 
-        
-
         const bars = chart.selectAll(".bars")
             .data(csvData)
             .enter()
@@ -205,7 +213,8 @@
             .attr("class", d => "bar tract-" + d.FIPS)
             .attr("width", chartInnerWidth / csvData.length - 1)
             .attr("x", (d, i) => i * (chartInnerWidth / csvData.length) + leftPadding)
-            .attr("height", d => (chartHeight - 10) - yScale(parseFloat(d[expressed])))
+            .attr("height", d => (chartInnerHeight - 10) - yScale(parseFloat(d[expressed])))
+            // .attr("height", d => (chartHeight) - yScale(parseFloat(d[expressed])))
             .attr("y", d => yScale(parseFloat(d[expressed])) + topBottomPadding)
             .style("fill", d => choropleth(d, colorScale))
             .on("mouseover", d => highlight(d.target.__data__, "FIPS"))
@@ -216,25 +225,16 @@
         let desc = bars.append("desc")
             .text('{"stroke": "none", "stroke-width": "0px"}')
 
-        // const numbers = chart.selectAll(".numbers")
-        //     .data(csvData)
-        //     .enter()
-        //     .append("text")
-        //     .sort((a, b) => a[expressed] - b[expressed])
-        //     .attr("class", d => "numbers " + d.FIPS)
-        //     .attr("text-anchor", "middle")
-        //     .attr("x", (d, i) => {
-        //         let fraction = chartWidth /csvData.length;
-        //         return i * fraction + (fraction - 1) / 2;
-        //     })
-        //     .attr("y", d => chartHeight - yScale(parseFloat(d[expressed])) - 1)
-        //     .text(d => Math.round(d[expressed] * 100))
-
         const chartTitle = chart.append("text")
             .attr("x", 40)
             .attr("y", 40)
             .attr("class", "chartTitle")
-            .text("SVI Score by Wake County Census Tract")
+            .text(" Score")
+        const chartSubtitle = chart.append("text")
+            .attr("x", 40)
+            .attr("y", 60)
+            .attr("class", "chartSubtitle")
+            .text("by Census Tract")
 
         const yAxis = d3.axisLeft()
             .scale(yScale)
@@ -244,11 +244,11 @@
             .attr("transform", translate)
             .call(yAxis)
 
-        const chartFrame = chart.append("rect")
-            .attr("class", "chartFrame")
-            .attr("width", chartInnerWidth)
-            .attr("height", chartInnerHeight)
-            .attr("transform", translate)
+        // const chartFrame = chart.append("rect")
+        //     .attr("class", "chartFrame")
+        //     .attr("width", chartInnerWidth)
+        //     .attr("height", chartInnerHeight)
+        //     .attr("transform", translate)
 
         updateChart(bars, csvData.length, colorScale)
     } // End setChart()
@@ -277,7 +277,7 @@
     function changeAttribute(attribute, csvData) {
 
         expressed = attribute;
-        const colorScale = makeColorScale(csvData)
+        const colorScale = makeColorScale(csvData, colorClasses)
 
         let tracts = d3.selectAll(".tracts")
             .transition()
@@ -301,7 +301,7 @@
             .style("fill", d => choropleth(d, colorScale))
 
         let chartTitle = d3.select(".chartTitle")
-            .text(expressedAttributeAlias + " Score by Wake County Census Tract")
+            .text(expressedAttributeAlias + " Score");
     }
 
     function getExpressedAttributeAlias(expressed, attrArray, aliasArray) {

@@ -20,7 +20,7 @@
 	<div class="row">
 		<div class="col-md-3">
 		</div>
-		<div class="col-md-6">
+		<div class="col-md-6" id="viz-container">
 			<div class="row">
 				<div class="col-md-8">
 					<h3>
@@ -32,11 +32,15 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-md-12" id="map">
+				<div class="col-md-12 viz-element" id="map">
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-md-12" id="chart">
+				<div class="col-md-12 viz-element" id="legend">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 viz-element" id="chart">
 				</div>
 			</div>
 		</div>
@@ -49,6 +53,7 @@
 	<script src="lib/popper.min.js"></script>
     <script src="lib/bootstrap.min.js"></script>
 	<script src="./lib/d3.js"></script>
+	<script src="./lib/d3-color-legend.js"></script>
     <script src="./lib/topojson.js"></script>
     <script src="js/main.js"></script>
   </body>
