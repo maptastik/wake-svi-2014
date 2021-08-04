@@ -18,10 +18,10 @@ body {
     padding: 0;
 }
 
-.viz-element {
+/* .viz-element {
     margin: 0;
     padding: 0;
-}
+} */
 
 .counties {
     fill: #121212;

@@ -40,6 +40,7 @@
             .attr("class", "map")
             .attr("width", width)
             .attr("height", vizElementHeight)
+            .call(responsivefy)
 
         const projection = d3.geoAlbers()
             .center([0, 35.8])
@@ -373,5 +374,4 @@
             .style("left", x + "px")
             .style("top", y + "px")
     }
-
 })() // End self-executing function
