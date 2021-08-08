@@ -6,6 +6,14 @@ body {
     font-family: "Merriweather", serif;
 }
 
+.row {
+    padding: 5px 0;
+}
+
+.gutter {
+    padding: 0;
+}
+
 .dropdown-container {
     margin-top: 0;
 }

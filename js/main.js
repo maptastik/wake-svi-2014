@@ -8,7 +8,7 @@
     const colorClasses = ["#005353", "#007b7b", "#00a4a4", "#00cccc", "#00ffff"];
 
     let windowHeight = window.innerHeight;
-    let vizElementHeight = (windowHeight - 30) / 2; 
+    let vizElementHeight = (windowHeight - 240) / 2; 
 
     // Chart Pseudo-Globals
     // let chartWidth = window.innerWidth,
